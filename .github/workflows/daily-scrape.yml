@@ -1,0 +1,60 @@
+name: daily-scrape
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # 03:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max records per vertical (blank = all)"
+        required: false
+        default: ""
+      verticals:
+        description: "Space-separated verticals (blank = all)"
+        required: false
+        default: ""
+
+concurrency:
+  group: daily-scrape
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Run scraper
+        env:
+          DUBIZZLE_PROXY_SUBSCRIPTION_URL: ${{ secrets.DUBIZZLE_PROXY_SUBSCRIPTION_URL }}
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ github.event.inputs.limit }}"; fi
+          for v in ${{ github.event.inputs.verticals }}; do ARGS="$ARGS --vertical $v"; done
+          python -m scraper.main $ARGS
+
+      - name: Commit snapshot
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data config
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "data: snapshot $(date -u +%Y-%m-%d)"
+            git push
+          fi

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+tmp/
+proxy_sub.raw
+.DS_Store
