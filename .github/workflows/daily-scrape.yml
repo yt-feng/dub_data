@@ -5,14 +5,18 @@ on:
     - cron: "0 3 * * *"   # 03:00 UTC daily
   workflow_dispatch:
     inputs:
-      limit:
-        description: "Max records per vertical (blank = all)"
+      max_pages:
+        description: "Pages per category"
         required: false
-        default: ""
+        default: "3"
       verticals:
         description: "Space-separated verticals (blank = all)"
         required: false
         default: ""
+      slow:
+        description: "Human-pause scale (>1 = slower/safer)"
+        required: false
+        default: "1.5"
 
 concurrency:
   group: daily-scrape
@@ -37,21 +41,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
+          sudo apt-get update && sudo apt-get install -y xvfb
 
-      - name: Run scraper
+      - name: Run scraper (headful under xvfb, via residential proxy)
         env:
           DUBIZZLE_PROXY_SUBSCRIPTION_URL: ${{ secrets.DUBIZZLE_PROXY_SUBSCRIPTION_URL }}
         run: |
-          ARGS=""
-          if [ -n "${{ github.event.inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ github.event.inputs.limit }}"; fi
+          ARGS="--proxy --max-pages ${{ github.event.inputs.max_pages || '3' }} --slow ${{ github.event.inputs.slow || '1.5' }}"
           for v in ${{ github.event.inputs.verticals }}; do ARGS="$ARGS --vertical $v"; done
-          python -m scraper.main $ARGS
+          xvfb-run -a python -m scraper.main $ARGS
 
       - name: Commit snapshot
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data config
+          git add data
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else

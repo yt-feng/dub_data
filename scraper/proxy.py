@@ -23,9 +23,10 @@ import requests
 
 SUPPORTED_PROXY_SCHEMES = {"http", "https", "socks5", "socks5h"}
 
-# A neutral endpoint that just echoes the caller IP — used to confirm a proxy
-# node is alive and to log the egress IP we will appear as to dubizzle.
+# A neutral endpoint that just echoes the caller IP — used to log the egress IP.
 EGRESS_CHECK_URL = "https://api.ipify.org?format=json"
+# The real target: a node is only useful if it can tunnel HTTPS to dubizzle.
+VERIFY_URL = "https://uae.dubizzle.com/"
 
 
 # --------------------------------------------------------------------------- #
@@ -148,15 +149,25 @@ def _requests_proxies(proxy: str) -> dict[str, str]:
     return {"http": proxy, "https": proxy}
 
 
-def check_proxy(proxy: str, timeout: int = 15) -> str | None:
-    """Return the egress IP if the proxy works, else None."""
+def tunnels_to_dubizzle(proxy: str, timeout: int = 15) -> bool:
+    """True if the node can reach dubizzle (any HTTP status = tunnel works;
+    even an Imperva challenge response means the CONNECT succeeded)."""
     try:
         resp = requests.get(
-            EGRESS_CHECK_URL,
+            VERIFY_URL,
             proxies=_requests_proxies(proxy),
             timeout=timeout,
             headers={"User-Agent": "Mozilla/5.0"},
         )
+        return resp.status_code < 600
+    except Exception:
+        return False
+
+
+def egress_ip(proxy: str, timeout: int = 12) -> str | None:
+    try:
+        resp = requests.get(EGRESS_CHECK_URL, proxies=_requests_proxies(proxy),
+                            timeout=timeout, headers={"User-Agent": "Mozilla/5.0"})
         if resp.ok:
             return resp.json().get("ip")
     except Exception:
@@ -165,12 +176,10 @@ def check_proxy(proxy: str, timeout: int = 15) -> str | None:
 
 
 def pick_working_proxy(
-    proxies: list[str] | None = None, max_tries: int = 20
+    proxies: list[str] | None = None, max_tries: int = 27
 ) -> tuple[str, str] | None:
-    """Return (proxy_url, egress_ip) for the first working node, or None.
-
-    If `proxies` is None, the subscription is loaded from the environment.
-    """
+    """Return (proxy_url, egress_ip) for the first node that can tunnel to
+    dubizzle, or None. Loads the subscription from the env if not given."""
     if proxies is None:
         raw = load_subscription_raw()
         if not raw:
@@ -178,9 +187,8 @@ def pick_working_proxy(
         proxies = usable_proxies_from_subscription(raw)
 
     for proxy in proxies[:max_tries]:
-        ip = check_proxy(proxy)
-        if ip:
-            return proxy, ip
+        if tunnels_to_dubizzle(proxy):
+            return proxy, (egress_ip(proxy) or "?")
     return None
 
 
