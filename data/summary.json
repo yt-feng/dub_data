@@ -1,28 +1,26 @@
 {
-  "generated_at": "2026-07-04T06:21:48.053755+00:00",
+  "generated_at": "2026-07-06T07:13:46.049308+00:00",
   "verticals": {
     "property": {
-      "total": 945,
+      "total": 1151,
       "files": {
-        "residential-for-rent.csv.gz": 35,
-        "apartments-for-rent.csv.gz": 35,
-        "villas-for-rent.csv.gz": 35,
+        "residential-for-rent.csv.gz": 105,
+        "apartments-for-rent.csv.gz": 105,
+        "villas-for-rent.csv.gz": 105,
         "townhouses-for-rent.csv.gz": 105,
         "rooms-flatmates.csv.gz": 105,
         "short-term-daily.csv.gz": 105,
-        "commercial-for-rent.csv.gz": 105,
-        "apartments-for-sale.csv.gz": 105,
-        "villas-for-sale.csv.gz": 105,
+        "commercial-for-rent.csv.gz": 104,
+        "apartments-for-sale.csv.gz": 104,
+        "villas-for-sale.csv.gz": 103,
         "commercial-for-sale.csv.gz": 105,
         "land-for-sale.csv.gz": 105
       }
     },
     "motors": {
-      "total": 227,
+      "total": 76,
       "files": {
-        "used-cars.csv.gz": 77,
-        "motorcycles.csv.gz": 75,
-        "auto-accessories-parts.csv.gz": 75
+        "used-cars.csv.gz": 76
       }
     },
     "classifieds": {
