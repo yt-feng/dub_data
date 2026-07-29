@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T05:46:42.220565+00:00",
+  "generated_at": "2026-07-29T05:52:52.420584+00:00",
   "verticals": {
     "property": {
       "total": 1154,
@@ -18,9 +18,9 @@
       }
     },
     "motors": {
-      "total": 78,
+      "total": 77,
       "files": {
-        "used-cars.csv.gz": 78
+        "used-cars.csv.gz": 77
       }
     },
     "classifieds": {
