@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-10-11T09:43:05.560945+00:00",
+  "generated_at": "2026-10-12T10:18:44.225495+00:00",
   "verticals": {
     "property": {
-      "total": 1140,
+      "total": 1139,
       "files": {
-        "residential-for-rent.csv.gz": 98,
-        "apartments-for-rent.csv.gz": 101,
-        "villas-for-rent.csv.gz": 105,
+        "residential-for-rent.csv.gz": 96,
+        "apartments-for-rent.csv.gz": 102,
+        "villas-for-rent.csv.gz": 104,
         "townhouses-for-rent.csv.gz": 105,
         "rooms-flatmates.csv.gz": 105,
         "short-term-daily.csv.gz": 105,
         "commercial-for-rent.csv.gz": 105,
-        "apartments-for-sale.csv.gz": 105,
-        "villas-for-sale.csv.gz": 101,
+        "apartments-for-sale.csv.gz": 102,
+        "villas-for-sale.csv.gz": 105,
         "commercial-for-sale.csv.gz": 105,
         "land-for-sale.csv.gz": 105
       }
